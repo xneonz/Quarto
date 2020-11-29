@@ -34,4 +34,8 @@ public class Move {
     public String pieceToString() {
         return Integer.toBinaryString(piece | 32).substring(1);
     }
+
+    public boolean equals(Move m) {
+        return getY() == m.getY() && getX() == m.getX() && getPiece() == m.getPiece();
+    }
 }

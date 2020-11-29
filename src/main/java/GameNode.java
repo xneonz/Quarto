@@ -15,6 +15,22 @@ public class GameNode {
         childNodes = new ArrayList<>();
     }
 
+    public void addChildNode(GameNode gameNode) {
+        childNodes.add(gameNode);
+    }
+
+    public boolean getNodeType() {
+        return nodeType;
+    }
+
+    public List<GameNode> getChildNodes() {
+        return childNodes;
+    }
+
+    public Move getMove() {
+        return move;
+    }
+
     public int evaluate(int limit) {
         int score = 0;
         Board.getBoard().play(move);
