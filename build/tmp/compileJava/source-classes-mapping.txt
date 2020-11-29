@@ -14,3 +14,15 @@ QuartoServer.java
  QuartoServer
 QuartoSemiRandomAgent.java
  QuartoSemiRandomAgent
+ChanceNode.java
+ ChanceNode
+WeightedNode.java
+ WeightedNode
+AbstractNode.java
+ AbstractNode
+MaxDepthComparator.java
+ MaxDepthComparator
+MiniMaxTree.java
+ MiniMaxTree
+MinDepthComparator.java
+ MinDepthComparator
