@@ -1,39 +1,29 @@
 public class GameManager {
     private GameNode gameNode;
+    private int turnNum;
 
     public GameManager(GameNode node, int frontierSize) {
         gameNode = node;
+        turnNum = 0;
         for(int i = 0; i < frontierSize; i++) {
             populateFrontier(gameNode);
         }
     }
 
-    public Move getHighestMove() {
-        GameNode node = gameNode.getChildNodes().get(0);
-        int limit = (gameNode.getNodeType() == GameNode.MAX_NODE) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-        int max = node.evaluate(limit);
-        for(int i = 0; i < gameNode.getChildNodes().size(); i++) {
-            int val = gameNode.getChildNodes().get(i).evaluate(limit);
-            if(val > max) {
-                max = val;
-                node = gameNode.getChildNodes().get(i);
+    public Move getNextMove() {
+        Move nextMove = null;
+        int score = (gameNode.getNodeType() == GameNode.OPPONENT_TURN) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for(GameNode n : gameNode.getChildNodes()) {
+            int val = n.evaluate();
+            if(gameNode.getNodeType() == GameNode.OPPONENT_TURN && val >= score) {
+                score = val;
+                nextMove = n.getMove();
+            } else if(gameNode.getNodeType() == GameNode.PLAYER_TURN && val <= score) {
+                score = val;
+                nextMove = n.getMove();
             }
         }
-        return node.getMove();
-    }
-
-    public Move getLowestMove() {
-        GameNode node = gameNode.getChildNodes().get(0);
-        int limit = (gameNode.getNodeType() == GameNode.MAX_NODE) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-        int min = node.evaluate(limit);
-        for(int i = 0; i < gameNode.getChildNodes().size(); i++) {
-            int val = gameNode.getChildNodes().get(i).evaluate(limit);
-            if(val < min) {
-                min = val;
-                node = gameNode.getChildNodes().get(i);
-            }
-        }
-        return node.getMove();
+        return nextMove;
     }
 
     public void playMove(Move move) {
@@ -43,8 +33,15 @@ public class GameManager {
                 break;
             }
         }
-        Board.getBoard().play(move);
+        turnNum++;
         populateFrontier(gameNode);
+        if(turnNum == 15) {
+            populateFrontier(gameNode);
+        }
+        if(turnNum == 16) {
+            populateFrontier(gameNode);
+        }
+        Board.getBoard().play(move);
     }
 
     private void populateFrontier(GameNode node) {
