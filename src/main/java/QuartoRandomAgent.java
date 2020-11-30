@@ -46,8 +46,7 @@ public class QuartoRandomAgent extends QuartoAgent {
 
         //do work
         int pieceID = copyBoard.chooseRandomPieceNotPlayed(100);
-        String BinaryString = String.format("%5s", Integer.toBinaryString(pieceID)).replace(' ', '0');
-        return BinaryString;
+        return String.format("%5s", Integer.toBinaryString(pieceID)).replace(' ', '0');
     }
 
     /*

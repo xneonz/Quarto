@@ -250,8 +250,6 @@ public class QuartoAgent {
 			builder.append(splittedMessage[i] + " ");
 		}
 		builder.toString();
-
-
 		System.out.println(builder.toString());
 		System.exit(0);
 	}
