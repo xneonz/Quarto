@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-public class QuartoAgent {
+public class QuartoPlayerAgent {
     private final GameClient gameClient;
     private int playerNumber;
 
@@ -25,14 +25,14 @@ public class QuartoAgent {
 
         gameClient.connectToServer(ip, 4321);
 
-        QuartoAgent quartoAgent = new QuartoAgent(gameClient);
+        QuartoPlayerAgent quartoPlayerAgent = new QuartoPlayerAgent(gameClient);
         if(args.length == 2) {
-            quartoAgent.initializeBoard(args[1]);
+            quartoPlayerAgent.initializeBoard(args[1]);
         }
-        quartoAgent.play();
+        quartoPlayerAgent.play();
     }
 
-    private QuartoAgent(GameClient gameClient) {
+    private QuartoPlayerAgent(GameClient gameClient) {
         this.gameClient = gameClient;
     }
 
