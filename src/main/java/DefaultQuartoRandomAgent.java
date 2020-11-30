@@ -1,7 +1,7 @@
-public class QuartoRandomAgent extends QuartoAgent {
+public class DefaultQuartoRandomAgent extends DefaultQuartoAgent {
 
 
-    public QuartoRandomAgent(GameClient gameClient, String stateFileName) {
+    public DefaultQuartoRandomAgent(GameClient gameClient, String stateFileName) {
         // because super calls one of the super class constructors(you can overload constructors), you need to pass the parameters required.
         super(gameClient, stateFileName);
     }
@@ -25,7 +25,7 @@ public class QuartoRandomAgent extends QuartoAgent {
         }
 
         gameClient.connectToServer(ip, 4321);
-        QuartoRandomAgent quartoAgent = new QuartoRandomAgent(gameClient, stateFileName);
+        DefaultQuartoRandomAgent quartoAgent = new DefaultQuartoRandomAgent(gameClient, stateFileName);
         quartoAgent.play();
 
         gameClient.closeConnection();
