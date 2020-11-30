@@ -1,40 +1,66 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.Provider;
+import java.util.List;
 
 public class CustomAgent {
     private final GameClient gameClient;
     private int playerNumber;
     private int timeLimitForResponse;
 
+    private static final String ACKNOWLEDGMENT_MOVE_HEADER = "ACK_MOVE:";
     private static final String ACKNOWLEDGMENT_PIECE_HEADER = "ACK_PIECE:";
+    private static final String ERROR_MOVE_HEADER = "ERR_MOVE:";
     private static final String ERROR_PIECE_HEADER = "ERR_PIECE:";
     private static final String GAME_OVER_HEADER = "GAME_OVER:";
     private static final String INFORM_PLAYER_NUMBER_HEADER = "PLAYER:";
+    private static final String MOVE_MESSAGE_HEADER = "MOVE:";
+    private static final String SELECT_MOVE_HEADER = "Q2:";
     private static final String SELECT_PIECE_HEADER = "Q1:";
     private static final String TURN_TIME_LIMIT_HEADER = "TURN_TIME_LIMIT:";
 
     public static void main(String[] args) {
+        if(args.length == 0) {
+            System.out.println("No IP Specified");
+            System.exit(0);
+        }
         String ip = args[0];
         GameClient gameClient = new GameClient();
 
         gameClient.connectToServer(ip, 4321);
 
         CustomAgent customAgent = new CustomAgent(gameClient);
+        if(args.length == 2) {
+            customAgent.initializeBoard(args[1]);
+        }
         customAgent.play();
     }
 
+
     private CustomAgent(GameClient gameClient) {
         this.gameClient = gameClient;
+    }
+
+    private void initializeBoard(String filePath) {
+        try {
+            Board.getBoard().fillFromFile(filePath);
+            Board.getBoard().printBoard();
+        } catch (IOException e) {
+            System.out.print("Cannot read file");
+            System.exit(0);
+        }
     }
 
     private void play() {
         GameManager gameManager;
         Move move;
         Move opponentMove;
-        int firstPiece = 0;
+        int firstPiece;
         setPlayerNumber();
         setTurnTimeLimit();
         boolean playerTurn = playerNumber == 2;
         if(playerTurn) {
+            firstPiece = Board.getBoard().getUnwinnablePiece();
             sendPiece(Integer.toBinaryString(firstPiece | 32).substring(1));
             opponentMove = getMove();
             gameManager = new GameManager(firstPiece, opponentMove, 2);
@@ -53,21 +79,37 @@ public class CustomAgent {
                 opponentMove = getMove();
                 gameManager.playMove(opponentMove);
             }
+            Board.getBoard().printBoard();
+            if(Board.getBoard().winner()) {
+                gameClient.closeConnection();
+                return;
+            }
             playerTurn = !playerTurn;
         }
     }
 
+    private Move getMove() {
+        String messageFromServer = gameClient.readFromServer(1000000);
+        String[] splittedMoveResponse = messageFromServer.split("\\s+");
+        isExpectedMessage(splittedMoveResponse, MOVE_MESSAGE_HEADER, true);
+        String[] moveString = splittedMoveResponse[1].split(",");
+        return new Move(Integer.parseInt(moveString[0]),
+                Integer.parseInt(moveString[1]),
+                getNextPiece(),
+                GameNode.OPPONENT_TURN);
+    }
+
     private int getNextPiece() {
-        return 0;
+        String messageFromServer;
+        messageFromServer = gameClient.readFromServer(1000000);
+        String[] splittedMessage = messageFromServer.split("\\s+");
+        isExpectedMessage(splittedMessage, SELECT_MOVE_HEADER, true);
+        return Integer.parseInt(splittedMessage[1], 2);
     }
 
     private void sendMove(Move move) {
         sendSquare(move.squareToString());
         sendPiece(move.pieceToString());
-    }
-
-    private Move getMove() {
-        return null;
     }
 
     private void sendPiece(String piece) {
@@ -83,7 +125,15 @@ public class CustomAgent {
         }
     }
 
-    private void sendSquare(String move) {}
+    private void sendSquare(String move) {
+        String messageFromServer;
+        gameClient.writeToServer(move);
+        messageFromServer = gameClient.readFromServer(1000000);
+        String[] splittedMoveResponse = messageFromServer.split("\\s+");
+        if (!isExpectedMessage(splittedMoveResponse, ACKNOWLEDGMENT_MOVE_HEADER) && !isExpectedMessage(splittedMoveResponse, ERROR_MOVE_HEADER)) {
+            turnError(messageFromServer);
+        }
+    }
 
     private void setPlayerNumber() {
         String message = gameClient.readFromServer(1000000);

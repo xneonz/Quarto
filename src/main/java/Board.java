@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +63,23 @@ public class Board {
     public void initializeBoard(int piece) {
         this.piece = piece;
         pieces[piece] = false;
+    }
+
+    public void fillFromFile(String filePath) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(filePath));
+        String line;
+        int x = 0;
+        while((line = br.readLine()) != null) {
+            String[] splitted = line.split("\\s+");
+            for(int y = 0; y < splitted.length; y++) {
+                if(!splitted[y].equals("null")) {
+                    int piece = Integer.parseInt(splitted[y], 2);
+                    squares[x][y] = piece;
+                    pieces[piece] = false;
+                }
+            }
+            x++;
+        }
     }
 
     public boolean winner() {
@@ -127,15 +148,45 @@ public class Board {
         for(int i = 0; i < 5; i++) {
             for(int j = 0; j < 5; j++) {
                 System.out.print("|");
-                if(squares[j][i] == 32) {
+                if(squares[i][j] == 32) {
                     System.out.print("     ");
                 } else {
-                    System.out.print(Integer.toBinaryString(squares[j][i] | 32).substring(1));
+                    System.out.print(Integer.toBinaryString(squares[i][j] | 32).substring(1));
                 }
             }
             System.out.println("|");
             System.out.println("+-----+-----+-----+-----+-----+");
         }
+    }
+
+    public int getUnwinnablePiece() {
+        for(int i = 0; i < 32; i++) {
+            if(pieces[i]) {
+                pieces[i] = false;
+                boolean winnable = false;
+                for(int x = 0; x < 5; x++) {
+                    for(int y = 0; y < 5; y++) {
+                        if(squares[x][y] == 32) {
+                            squares[x][y] = i;
+                            if(winner()) {
+                                winnable = true;
+                            }
+                            squares[x][y] = 32;
+                        }
+                    }
+                }
+                pieces[i] = true;
+                if(!winnable) {
+                    return i;
+                }
+            }
+        }
+        for(int i = 0; i < 32; i++) {
+            if(pieces[i]) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public static Board getBoard() {

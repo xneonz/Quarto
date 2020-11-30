@@ -58,10 +58,7 @@ public class GameManager {
         if(turnNum == 7) {
             populateFrontier(gameNode);
         }
-        if(turnNum == 14) {
-            populateFrontier(gameNode);
-        }
-        if(turnNum == 20) {
+        if(turnNum == 15) {
             populateFrontier(gameNode);
         }
         Board.getBoard().play(move);
