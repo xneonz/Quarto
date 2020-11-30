@@ -9,8 +9,8 @@ public class GameNode {
     private List<GameNode> childNodes;
     private Move move;
 
-    public GameNode(boolean nodeType, Move move) {
-        this.nodeType = nodeType;
+    public GameNode(Move move) {
+        this.nodeType = move.playerTurn;
         this.move = move;
         childNodes = new ArrayList<>();
     }
@@ -31,7 +31,17 @@ public class GameNode {
         return move;
     }
 
-    public int evaluate() {
-        return 0;
+    public double evaluate() {
+        double value = 0.0d;
+        Board.getBoard().play(move);
+        if(childNodes.isEmpty()) {
+            value = Board.getBoard().getScore();
+        } else {
+            for(GameNode n : childNodes) {
+                value += 0.3 * n.evaluate();
+            }
+        }
+        Board.getBoard().unplay(move);
+        return value;
     }
 }

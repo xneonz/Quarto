@@ -23,7 +23,7 @@ public class Move {
         return piece;
     }
 
-    public boolean isPlayerTurn() {
+    public boolean getPlayerTurn() {
         return playerTurn;
     }
 

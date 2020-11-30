@@ -3,8 +3,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Board {
-    private int[][] squares;
-    private boolean[] pieces;
+    private final int[][] squares;
+    private final boolean[] pieces;
     private int piece = 0;
     private boolean playerTurn = false;
 
@@ -46,17 +46,17 @@ public class Board {
         squares[move.getX()][move.getY()] = piece;
         piece = move.getPiece();
         pieces[piece] = false;
-        playerTurn = !playerTurn;
+        playerTurn = !move.playerTurn;
     }
 
     public void unplay(Move move) {
         piece = squares[move.getX()][move.getY()];
         squares[move.getX()][move.getY()] = 32;
         pieces[move.getPiece()] = true;
-        playerTurn = !playerTurn;
+        playerTurn = move.playerTurn;
     }
 
-    public void initializeBoard(int piece, Move move) {
+    public void initializeBoard(int piece) {
         this.piece = piece;
         pieces[piece] = false;
     }
@@ -108,11 +108,21 @@ public class Board {
         return (sameDiaDown > 0 || sameDiaDownInv > 0 || sameDiaUp > 0 || sameDiaUpInv > 0);
     }
 
-    public int getScore() {
-        return 0;
+    public double getScore() {
+        if(winner()) {
+            if(playerTurn == GameNode.PLAYER_TURN) {
+                return 1.0d;
+            } else {
+                return -1.0d;
+            }
+        } else {
+            return 0.0d;
+        }
     }
 
     public void printBoard() {
+        System.out.println((playerTurn == GameNode.PLAYER_TURN) ? "Player's turn" : "Opponent's turn");
+        System.out.println(String.format("Next piece: %d", piece));
         System.out.println("+-----+-----+-----+-----+-----+");
         for(int i = 0; i < 5; i++) {
             for(int j = 0; j < 5; j++) {
