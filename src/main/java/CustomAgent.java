@@ -1,12 +1,8 @@
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.Provider;
-import java.util.List;
 
 public class CustomAgent {
     private final GameClient gameClient;
     private int playerNumber;
-    private int timeLimitForResponse;
 
     private static final String ACKNOWLEDGMENT_MOVE_HEADER = "ACK_MOVE:";
     private static final String ACKNOWLEDGMENT_PIECE_HEADER = "ACK_PIECE:";
@@ -91,7 +87,7 @@ public class CustomAgent {
     private Move getMove() {
         String messageFromServer = gameClient.readFromServer(1000000);
         String[] splittedMoveResponse = messageFromServer.split("\\s+");
-        isExpectedMessage(splittedMoveResponse, MOVE_MESSAGE_HEADER, true);
+        isExpectedMessage(splittedMoveResponse, MOVE_MESSAGE_HEADER);
         String[] moveString = splittedMoveResponse[1].split(",");
         return new Move(Integer.parseInt(moveString[0]),
                 Integer.parseInt(moveString[1]),
@@ -103,7 +99,7 @@ public class CustomAgent {
         String messageFromServer;
         messageFromServer = gameClient.readFromServer(1000000);
         String[] splittedMessage = messageFromServer.split("\\s+");
-        isExpectedMessage(splittedMessage, SELECT_MOVE_HEADER, true);
+        isExpectedMessage(splittedMessage, SELECT_MOVE_HEADER);
         return Integer.parseInt(splittedMessage[1], 2);
     }
 
@@ -116,7 +112,7 @@ public class CustomAgent {
         String messageFromServer;
         messageFromServer = gameClient.readFromServer(1000000);
         String[] splittedMessage = messageFromServer.split("\\s+");
-        isExpectedMessage(splittedMessage, SELECT_PIECE_HEADER, true);
+        isExpectedMessage(splittedMessage, SELECT_PIECE_HEADER);
         gameClient.writeToServer(piece);
         messageFromServer = gameClient.readFromServer(1000000);
         String[] splittedResponse = messageFromServer.split("\\s+");
@@ -151,9 +147,7 @@ public class CustomAgent {
         String message = this.gameClient.readFromServer(1000000);
         String[] splittedMessage = message.split("\\s+");
         System.out.println(splittedMessage[0] + " " + splittedMessage[1]);
-        if (isExpectedMessage(splittedMessage, TURN_TIME_LIMIT_HEADER)) {
-            timeLimitForResponse = Integer.parseInt(splittedMessage[1], 10);
-        } else {
+        if (!isExpectedMessage(splittedMessage, TURN_TIME_LIMIT_HEADER)) {
             System.out.println("Did not Receive TURN_TIME_LIMIT_HEADER");
             System.exit(0);
         }
@@ -164,17 +158,6 @@ public class CustomAgent {
             return true;
         } else if (splittedMessage.length > 0 && splittedMessage[0].equals(GAME_OVER_HEADER)) {
             gameOver(splittedMessage);
-        }
-        return false;
-    }
-
-    private static boolean isExpectedMessage(String[] splittedMessage, String header, boolean fatal) {
-        if (splittedMessage.length > 0 && splittedMessage[0].equals(header)) {
-            return true;
-        } else if (splittedMessage.length > 0 && splittedMessage[0].equals(GAME_OVER_HEADER)) {
-            gameOver(splittedMessage);
-        } else if (fatal) {
-            turnError(splittedMessage[0] + " " + splittedMessage[1]);
         }
         return false;
     }
