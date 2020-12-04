@@ -58,11 +58,11 @@ public class QuartoPlayerAgent {
             firstPiece = Board.getBoard().getUnwinnablePiece();
             sendPiece(Integer.toBinaryString(firstPiece | 32).substring(1));
             opponentMove = getMove();
-            gameManager = new GameManager(firstPiece, opponentMove, 2);
+            gameManager = new GameManager(firstPiece, opponentMove);
         } else {
             firstPiece = getNextPiece();
             move = new Move(0, 0, 1, true);
-            gameManager = new GameManager(firstPiece, move, 2);
+            gameManager = new GameManager(firstPiece, move);
         }
         playerTurn = true;
         while(true) {

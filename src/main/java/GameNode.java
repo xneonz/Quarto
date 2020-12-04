@@ -5,40 +5,34 @@ public class GameNode {
     public static final boolean PLAYER_TURN = true;
     public static final boolean OPPONENT_TURN = false;
 
-    private boolean nodeType;
-    private List<GameNode> childNodes;
-    private Move move;
+    private final Move move;
 
     public GameNode(Move move) {
-        this.nodeType = move.playerTurn;
         this.move = move;
-        childNodes = new ArrayList<>();
-    }
-
-    public void addChildNode(GameNode gameNode) {
-        childNodes.add(gameNode);
-    }
-
-    public boolean getNodeType() {
-        return nodeType;
     }
 
     public List<GameNode> getChildNodes() {
-        return childNodes;
+        List<Move> moves = Board.getBoard().getAllMoves();
+        List<GameNode> nodes = new ArrayList<>();
+        for(Move m : moves) {
+            nodes.add(new GameNode(m));
+        }
+        return nodes;
     }
 
     public Move getMove() {
         return move;
     }
 
-    public double evaluate() {
+    public double evaluate(int d) {
         double value = 0.0d;
         Board.getBoard().play(move);
-        if(childNodes.isEmpty()) {
+        if(d == 0) {
             value = Board.getBoard().getScore();
         } else {
-            for(GameNode n : childNodes) {
-                value += 0.3 * n.evaluate();
+            List<Move> moves = Board.getBoard().getAllMoves();
+            for(Move m : moves) {
+                value += 0.3 * new GameNode(m).evaluate(d - 1);
             }
         }
         Board.getBoard().unplay(move);
